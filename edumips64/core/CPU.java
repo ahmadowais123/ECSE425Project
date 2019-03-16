@@ -264,6 +264,10 @@ public class CPU
 				}
 			}
 			pipe.put(PipeStatus.MEM, pipe.get(PipeStatus.EX));
+			Instruction currentMemInst = pipe.get(PipeStatus.EX);
+			if(currentMemInst instanceof LDSTInstructions) {
+				throw new SimultaneousMemoryAccessException();
+			}
 
 			// ID
 			currentPipeStatus = PipeStatus.ID;
@@ -334,9 +338,7 @@ public class CPU
 
 		}
 		catch(SimultaneousMemoryAccessException ex) {
-		    if(currentPipeStatus == PipeStatus.MEM) {
-		        pipe.put(PipeStatus.MEM, Instruction.buildInstruction("BUBBLE"));
-            } else if(currentPipeStatus == PipeStatus.EX) {
+		    if(currentPipeStatus == PipeStatus.EX) {
                 pipe.put(PipeStatus.EX, Instruction.buildInstruction("BUBBLE"));
             }
         }
