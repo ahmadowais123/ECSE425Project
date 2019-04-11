@@ -81,7 +81,7 @@ public class CPU
 	private static CPU cpu;
 
 	/** Statistics */
-	private int cycles, instructions, RAWStalls; 
+	private int cycles, instructions, RAWStalls, StructuralHazards;
 
 	/** Static initializer */
 	static {
@@ -197,6 +197,13 @@ public class CPU
 	public int getRAWStalls() {
 		return RAWStalls;
 	}
+
+    /** Returns the number of Structural Hazards that happened inside the pipeline
+     * @return an integer
+     */
+    public int getStructuralHazards() {
+        return StructuralHazards;
+    }
 
     /** This method performs a single pipeline step
     * @throw RAWHazardException when a RAW hazard is detected
@@ -338,6 +345,7 @@ public class CPU
 
 		}
 		catch(SimultaneousMemoryAccessException ex) {
+		    StructuralHazards++;
 		    if(currentPipeStatus == PipeStatus.EX) {
                 pipe.put(PipeStatus.EX, Instruction.buildInstruction("BUBBLE"));
             }
@@ -392,6 +400,7 @@ public class CPU
 		cycles = 0;
 		instructions = 0;
 		RAWStalls = 0;
+		StructuralHazards = 0;
 
 		// Reset dei registri
         for(int i = 0; i < 32; i++)
